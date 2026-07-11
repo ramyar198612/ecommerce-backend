@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from .models import Product, Order, OrderItem, Wishlist
-
+import os
+from django.conf import settings
 
 def product_list(request):
     products = Product.objects.all()
@@ -156,3 +157,28 @@ def add_to_wishlist(request):
         status=400
     )
 
+def load_products(request):
+    try:
+        if Product.objects.exists():
+            return JsonResponse({"message": "Products already exist."})
+
+        file_path = os.path.join(settings.BASE_DIR, "products.json")
+
+        with open(file_path, "r") as file:
+            data = json.load(file)
+
+        for item in data:
+            fields = item["fields"]
+
+            Product.objects.create(
+                name=fields["name"],
+                description=fields["description"],
+                category=fields["category"],
+                price=fields["price"],
+                image=fields["image"],
+            )
+
+        return JsonResponse({"message": "Products loaded successfully!"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
