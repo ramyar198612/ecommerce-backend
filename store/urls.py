@@ -10,4 +10,5 @@ urlpatterns = [
     views.add_to_wishlist,
     name="add-to-wishlist"
 ),
+    path("load-products/", views.load_products, name="load-products"),
 ]
