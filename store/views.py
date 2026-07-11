@@ -158,23 +158,27 @@ def add_to_wishlist(request):
     )
 
 def load_products(request):
-    if Product.objects.exists():
-        return JsonResponse({"message": "Products already exist."})
+    try:
+        if Product.objects.exists():
+            return JsonResponse({"message": "Products already exist."})
 
-    file_path = os.path.join(settings.BASE_DIR, "products.json")
+        file_path = os.path.join(settings.BASE_DIR, "products.json")
 
-    with open(file_path, "r") as file:
-        data = json.load(file)
+        with open(file_path, "r") as file:
+            data = json.load(file)
 
-    for item in data:
-        fields = item["fields"]
+        for item in data:
+            fields = item["fields"]
 
-        Product.objects.create(
-            name=fields["name"],
-            description=fields["description"],
-            category=fields["category"],
-            price=fields["price"],
-            image=fields["image"],
-        )
+            Product.objects.create(
+                name=fields["name"],
+                description=fields["description"],
+                category=fields["category"],
+                price=fields["price"],
+                image=fields["image"],
+            )
 
-    return JsonResponse({"message": "Products loaded successfully!"})
+        return JsonResponse({"message": "Products loaded successfully!"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
